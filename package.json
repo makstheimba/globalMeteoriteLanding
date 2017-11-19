@@ -1,0 +1,26 @@
+{
+  "name": "glob_meteorite_data",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify index.js -o static/bundle.js",
+    "watch": "watchify index.js -o static/bundle.js --debug --verbose"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-eslint": "^8.0.1",
+    "browserify": "^14.5.0",
+    "eslint": "^4.10.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "watchify": "^3.9.0"
+  },
+  "dependencies": {
+    "d3": "^4.11.0",
+    "d3-selection-multi": "^1.0.1",
+    "topojson": "^3.0.2"
+  }
+}
