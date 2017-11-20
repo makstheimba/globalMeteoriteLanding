@@ -12,14 +12,14 @@ const factory = () => {
   const degrees = 180 / PI;
 
   // Returns the unit quaternion for the given Euler rotation angles [λ, φ, γ].
-  function versor(e) {
-    const l = (e[0] / 2) * radians;
+  function versor([λ, φ, γ]) {
+    const l = (λ / 2) * radians;
     const sl = sin(l);
     const cl = cos(l); // λ / 2
-    const p = (e[1] / 2) * radians;
+    const p = (φ / 2) * radians;
     const sp = sin(p);
     const cp = cos(p); // φ / 2
-    const g = (e[2] / 2) * radians;
+    const g = (γ / 2) * radians;
     const sg = sin(g);
     const cg = cos(g); // γ / 2
 
@@ -32,9 +32,9 @@ const factory = () => {
   }
 
   // Returns Cartesian coordinates [x, y, z] given spherical coordinates [λ, φ].
-  versor.cartesian = (e) => {
-    const l = e[0] * radians;
-    const p = e[1] * radians;
+  versor.cartesian = ([λ, φ]) => {
+    const l = λ * radians;
+    const p = φ * radians;
     const cp = cos(p);
 
     return [cp * cos(l), cp * sin(l), sin(p)];
@@ -56,15 +56,16 @@ const factory = () => {
     }
     const t = acos(max(-1, min(1, dot(v0, v1)))) / 2;
     const s = sin(t); // t = θ / 2
+
     return [cos(t), (w[2] / l) * s, (-w[1] / l) * s, (w[0] / l) * s];
   };
 
   // Returns the quaternion that represents q0 * q1.
   versor.multiply = (q0, q1) => [
-    ((q0[0] * q1[0]) - (q0[1] * q1[1])) - ((q0[2] * q1[2]) - (q0[3] * q1[3])),
-    ((q0[0] * q1[1]) + (q0[1] * q1[0])) + ((q0[2] * q1[3]) - (q0[3] * q1[2])),
-    ((q0[0] * q1[2]) - (q0[1] * q1[3])) + ((q0[2] * q1[0]) + (q0[3] * q1[1])),
-    ((q0[0] * q1[3]) + (q0[1] * q1[2])) - ((q0[2] * q1[1]) + (q0[3] * q1[0])),
+    (q0[0] * q1[0]) - (q0[1] * q1[1]) - (q0[2] * q1[2]) - (q0[3] * q1[3]),
+    ((q0[0] * q1[1]) + (q0[1] * q1[0]) + (q0[2] * q1[3])) - (q0[3] * q1[2]),
+    ((q0[0] * q1[2]) + (q0[2] * q1[0]) + (q0[3] * q1[1])) - (q0[1] * q1[3]),
+    ((q0[0] * q1[3]) + (q0[1] * q1[2]) + (q0[3] * q1[0])) - (q0[2] * q1[1]),
   ];
 
   return versor;

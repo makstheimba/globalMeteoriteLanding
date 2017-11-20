@@ -49,7 +49,7 @@ window.onload = () => {
 
     render = function () {
       context.clearRect(0, 0, width, height);
-      context.beginPath(); path(sphere); context.fillStyle = '#fff'; context.fill();
+      context.beginPath(); path(sphere); context.fillStyle = '#bfd7ff'; context.fill();
       context.beginPath(); path(land); context.fillStyle = '#000'; context.fill();
       context.beginPath(); path(sphere); context.stroke();
     };
