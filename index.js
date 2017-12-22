@@ -44,9 +44,13 @@ window.onload = () => {
     .defer(d3.json, 'https://unpkg.com/world-atlas@1/world/110m.json')
     .await((error, meteors, world) => {
       if (error) throw error;
-      const totalMass = meteors.features.reduce((a, b) => a + +b.properties.mass, 0);
-      const averageMass = totalMass / meteors.features.length;
+      const meteorsMass = meteors.features.map(meteor => +meteor.properties.mass).filter(m => m);
       const land = topojson.feature(world, world.objects.land);
+      const circle = d3.geoCircle();
+      const rScale = d3.scaleSqrt()
+        .clamp(true)
+        .domain([Math.min(...meteorsMass), Math.max(...meteorsMass)])
+        .range([0.1, 5]);
 
       render = () => {
         context.clearRect(0, 0, width, height);
@@ -62,11 +66,12 @@ window.onload = () => {
         context.fill();
 
         meteors.features.forEach((meteor) => {
-          context.beginPath();
-          path.pointRadius(1);
-          path(meteor.geometry);
-          context.fillStyle = '#911';
-          context.fill();
+          if (meteor.geometry) {
+            context.beginPath();
+            path(circle.center(meteor.geometry.coordinates).radius(rScale(meteor.properties.mass))());
+            context.fillStyle = '#911';
+            context.fill();
+          }
         });
       };
 
