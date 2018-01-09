@@ -8,8 +8,11 @@
 	<title>Meteorite landings on globe</title>
 </head>
 <body>
-	<canvas width="960" height="600" id="mainCanvas"></canvas>
-	<canvas width="960" height="600" id="hiddenCanvas" hidden></canvas>
-	<div class="tooltip tooltip-hidden" />
+	<canvas id="mainCanvas"></canvas>
+	<canvas id="hiddenCanvas" hidden></canvas>
+	<div class="tooltip tooltip-hidden"></div>
+	<div class="controls">
+		<button id="zoomIn">+</button><button id="zoomOut">-</button>
+	</div>
 </body>
 </html>

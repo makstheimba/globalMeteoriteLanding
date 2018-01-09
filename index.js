@@ -5,27 +5,24 @@ const versor = require('./versor');
 const topojson = require('topojson');
 
 const getTooltipHTML = ({ name, mass, year }) => (
-  `<strong>${name}</strong><br />
-  ${mass} g<br />
-  Fell in ${new Date(year).getFullYear()}
-  `
+  `<strong>${name}</strong><br />${mass || '???'} g<br />Fell in ${new Date(year).getFullYear()}`
 );
 
 window.onload = () => {
-  const canvas = d3.select('#mainCanvas');
-  const width = canvas.property('width');
-  const height = canvas.property('height');
+  let width = 960;
+  let height = 600;
+  const canvas = d3.select('#mainCanvas').attrs({ width: `${width}px`, height: `${height}px` });
   const context = canvas.node().getContext('2d');
   const tooltip = d3.select('.tooltip');
 
-  const projection = d3.geoOrthographic()
+  let projection = d3.geoOrthographic()
     .scale((height - 10) / 2)
     .translate([width / 2, height / 2])
     .precision(0.1);
 
   const path = d3.geoPath().projection(projection).context(context);
 
-  const hiddenCanvas = d3.select('#hiddenCanvas');
+  const hiddenCanvas = d3.select('#hiddenCanvas').attrs({ width: `${width}px`, height: `${height}px` });
   const hiddenContext = hiddenCanvas.node().getContext('2d');
   const hiddenProjection = d3.geoEquirectangular();
   const hiddenPath = d3.geoPath().projection(hiddenProjection).context(hiddenContext);
@@ -51,7 +48,25 @@ window.onload = () => {
     render();
   }
 
+  function resize() {
+    canvas.attrs({ width: `${width}px`, height: `${height}px` });
+    projection = projection
+      .scale((height - 10) / 2)
+      .translate([width / 2, height / 2]);
+    render();
+  }
+
   canvas.call(d3.drag().on('start', dragstarted).on('drag', dragged));
+  d3.select('#zoomIn').on('click', () => {
+    width += 50;
+    height += 50;
+    resize();
+  });
+  d3.select('#zoomOut').on('click', () => {
+    width = width < 960 ? width : width - 50;
+    height = height < 600 ? height : height - 50;
+    resize();
+  });
 
   d3.queue()
     .defer(d3.json, 'https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/meteorite-strike-data.json')
@@ -68,6 +83,13 @@ window.onload = () => {
       const meteors = dirtyMeteors.features
         .filter(meteor => meteor.geometry)
         .map(meteor => Object.assign({ radius: rScale(meteor.properties.mass) }, meteor));
+      const drawMeteor = (meteor, isSelected) => {
+        if (!meteor.geometry) return;
+        context.beginPath();
+        path(circle.center(meteor.geometry.coordinates).radius(meteor.radius)());
+        context.fillStyle = isSelected ? '#0ad' : '#911';
+        context.fill();
+      };
 
       meteors.forEach((meteor, i) => {
         const iStr = `${i}`.padStart(3, 0);
@@ -91,12 +113,7 @@ window.onload = () => {
         context.fillStyle = '#555';
         context.fill();
 
-        meteors.forEach((meteor) => {
-          context.beginPath();
-          path(circle.center(meteor.geometry.coordinates).radius(meteor.radius)());
-          context.fillStyle = '#911';
-          context.fill();
-        });
+        meteors.forEach(meteor => drawMeteor(meteor, false));
       };
 
       render();
@@ -108,12 +125,6 @@ window.onload = () => {
         const p = hiddenPos[0] > -1
           ? hiddenContext.getImageData(hiddenPos[0], hiddenPos[1], 1, 1).data
           : null;
-        const drawMeteor = (meteor, isSelected) => {
-          context.beginPath();
-          path(circle.center(meteor.geometry.coordinates).radius(meteor.radius)());
-          context.fillStyle = isSelected ? '#0ad' : '#911';
-          context.fill();
-        };
 
         if (p !== null && p[0] !== 0) {
           const index = (Math.floor(p[0] / 10) * 100) + (Math.floor(p[1] / 10) * 10) + (Math.floor(p[2] / 10));
@@ -130,7 +141,9 @@ window.onload = () => {
               .styles({ left: `${pos[0]}px`, top: `${pos[1]}px` });
           }
         } else {
-          drawMeteor(meteors[selectedMeteor], false);
+          if (selectedMeteor !== null) {
+            drawMeteor(meteors[selectedMeteor], false);
+          }
           selectedMeteor = null;
           tooltip.classed('tooltip-hidden', true);
         }
