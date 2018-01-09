@@ -12,3 +12,26 @@ body {
   font-family: Georgia, 'Times New Roman', Times, serif;  
 }
 
+
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  color: white;
+  padding: 5px;
+  height: 55px;
+  width: 150px;
+  background: rgba(48, 54, 56, 0.5);
+  overflow: hidden;
+  visibility: visible;
+  box-shadow: 1px 1px 2px 2px black;
+  transform: translate(-90%, 20%);
+  transition: .5s opacity, .5s height ease-out;
+  text-align: center;
+}
+
+.tooltip-hidden {
+  opacity: 0;
+  height: 0;
+}
