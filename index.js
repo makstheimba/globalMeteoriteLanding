@@ -50,9 +50,7 @@ window.onload = () => {
 
   function resize() {
     canvas.attrs({ width: `${width}px`, height: `${height}px` });
-    projection = projection
-      .scale((height - 10) / 2)
-      .translate([width / 2, height / 2]);
+    projection = projection.scale((height - 10) / 2).translate([width / 2, height / 2]);
     render();
   }
 
@@ -87,7 +85,7 @@ window.onload = () => {
         if (!meteor.geometry) return;
         context.beginPath();
         path(circle.center(meteor.geometry.coordinates).radius(meteor.radius)());
-        context.fillStyle = isSelected ? '#0ad' : '#911';
+        context.fillStyle = isSelected ? '#5d3' : '#911';
         context.fill();
       };
 
@@ -122,12 +120,14 @@ window.onload = () => {
         const pos = d3.mouse(this);
         const latlong = projection.invert(pos);
         const hiddenPos = hiddenProjection(latlong);
-        const p = hiddenPos[0] > -1
+        const hiddenPoint = hiddenPos[0] > -1
           ? hiddenContext.getImageData(hiddenPos[0], hiddenPos[1], 1, 1).data
           : null;
+        const point = context.getImageData(pos[0], pos[1], 1, 1).data;
 
-        if (p !== null && p[0] !== 0) {
-          const index = (Math.floor(p[0] / 10) * 100) + (Math.floor(p[1] / 10) * 10) + (Math.floor(p[2] / 10));
+        if (hiddenPoint !== null && hiddenPoint[0] !== 0 && point[0] !== 0) {
+          const [r, g, b] = hiddenPoint;
+          const index = (Math.floor(r / 10) * 100) + (Math.floor(g / 10) * 10) + (Math.floor(b / 10));
           const meteor = meteors[index];
 
           if (index !== selectedMeteor) {
